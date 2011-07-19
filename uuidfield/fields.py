@@ -1,7 +1,6 @@
+import uuid
 
 from django.db.models import Field
-
-import uuid
 
 try:
     # psycopg2 needs us to register the uuid type
@@ -10,19 +9,21 @@ try:
 except (ImportError, AttributeError):
     pass
 
+
 class UUIDField(Field):
     """
-        A field which stores a UUID value in hex format. This may also have
-        the Boolean attribute 'auto' which will set the value on initial save to a
-        new UUID value (calculated using the UUID1 method). Note that while all
-        UUIDs are expected to be unique we enforce this with a DB constraint.
+    A field which stores a UUID value in hex format. This may also have
+    the Boolean attribute 'auto' which will set the value on initial save to a
+    new UUID value (calculated using the UUID1 method). Note that while all
+    UUIDs are expected to be unique we enforce this with a DB constraint.
     """
-    # TODO: support UUID types in Postgres
     # TODO: support binary storage types
     # __metaclass__ = models.SubfieldBase
 
-    def __init__(self, version=4, node=None, clock_seq=None, namespace=None, name=None, auto=False, *args, **kwargs):
-        assert version in (1, 3, 4, 5), "UUID version %s is not supported." % (version,)
+    def __init__(self, version=4, node=None, clock_seq=None, namespace=None,
+                 name=None, auto=False, *args, **kwargs):
+        if version not in (1, 3, 4, 5):
+            raise ValueError("UUID version %s is not supported." % (version,))
         self.auto = auto
         self.version = version
         # We store UUIDs in hex format, which is fixed at 32 characters.
