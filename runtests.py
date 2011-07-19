@@ -6,25 +6,32 @@ from django.conf import settings
 
 if not settings.configured:
     settings.configure(
-        DATABASE_ENGINE='django.db.backends.postgresql_psycopg2',
-        DATABASE_NAME='uuidfield_test',
+        DATABASES={
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql_psycopg2',
+                'NAME': 'uuidfield_test',
+            },
+            'sqlite': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': ':memory:',
+            }
+        },
         INSTALLED_APPS=[
             'django.contrib.contenttypes',
-            'uuidfield',
-            'uuidfield.tests',
+            'uuidfield.uuidfield_tests',
         ],
         ROOT_URLCONF='',
         DEBUG=False,
     )
 
-from django.test.simple import run_tests
+from django.test.simple import DjangoTestSuiteRunner
 
 def runtests(*test_args):
     if not test_args:
-        test_args = ['uuidfield']
+        test_args = ['uuidfield_tests']
     parent = dirname(abspath(__file__))
     sys.path.insert(0, parent)
-    failures = run_tests(test_args, verbosity=1, interactive='--no-input' not in sys.argv)
+    failures = DjangoTestSuiteRunner(verbosity=1, interactive='--no-input' not in sys.argv).run_tests(test_args)
     sys.exit(failures)
 
 if __name__ == '__main__':

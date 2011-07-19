@@ -1,6 +1,7 @@
 from django.db import models
 
-from uuidfield import UUIDField
+from uuidfield.fields import UUIDField
+
 
 class UUIDFieldTestModel(models.Model):
     uuid = UUIDField(auto=True)
