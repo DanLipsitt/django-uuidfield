@@ -1,6 +1,7 @@
 import uuid
 
 from django.db.models import Field
+from django.utils.encoding import smart_unicode
 
 try:
     # psycopg2 needs us to register the uuid type
@@ -46,21 +47,38 @@ class UUIDField(Field):
             args = (self.namespace, self.name)
         else:
             args = ()
-        return getattr(uuid, 'uuid%s' % (self.version,))(*args)
+        return getattr(uuid, 'uuid%s' % self.version)(*args)
 
-    def db_type(self, connection=None):
-        return 'char(%s)' % (self.max_length,)
+    def db_type(self, connection):
+        if connection.vendor == 'postgresql':
+            return 'uuid'
+        return 'char(%s)' % self.max_length
+
+    def to_python(self, value):
+        """
+        Return a uuid.UUID instance from the value returned by the database.
+        """
+        if not value:
+            return None
+        if isinstance(value, uuid.UUID):
+            return value
+        # attempt to parse a UUID
+        return uuid.UUID(smart_unicode(value))
 
     def pre_save(self, model_instance, add):
-        """ see CharField.pre_save
-            This is used to ensure that we auto-set values if required.
         """
-        value = getattr(model_instance, self.attname, None)
+        Ensure that value is auto-set if required.
+        """
+        value = super(UUIDField, self).pre_save(model_instance, add)
         if self.auto and add and not value:
             # Assign a new value for this attribute if required.
-            value = self._create_uuid().hex
+            value = self._create_uuid()
             setattr(model_instance, self.attname, value)
         return value
+
+    def get_prep_value(self, value):
+        if isinstance(value, uuid.UUID):
+            return value.hex
 
     def south_field_triple(self):
         "Returns a suitable description of this field for South."
