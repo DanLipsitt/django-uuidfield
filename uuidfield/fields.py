@@ -21,33 +21,18 @@ class UUIDField(Field):
     # TODO: support binary storage types
     # __metaclass__ = models.SubfieldBase
 
-    def __init__(self, version=4, node=None, clock_seq=None, namespace=None,
-                 name=None, auto=False, *args, **kwargs):
-        if version not in (1, 3, 4, 5):
-            raise ValueError("UUID version %s is not supported." % (version,))
+    def __init__(self, auto=None, *args, **kwargs):
         self.auto = auto
-        self.version = version
-        # We store UUIDs in hex format, which is fixed at 32 characters.
+        # We may store UUIDs in hex format, which is fixed at 32 characters.
         kwargs['max_length'] = 32
         if auto:
             # Do not let the user edit UUIDs if they are auto-assigned.
             kwargs['editable'] = False
             kwargs['blank'] = True
             kwargs['unique'] = True
-        if version == 1:
-            self.node, self.clock_seq = node, clock_seq
-        elif version in (3, 5):
-            self.namespace, self.name = namespace, name
+            if not callable(auto):
+                self.auto = lambda obj: uuid.uuid4()
         super(UUIDField, self).__init__(*args, **kwargs)
-
-    def _create_uuid(self):
-        if self.version == 1:
-            args = (self.node, self.clock_seq)
-        elif self.version in (3, 5):
-            args = (self.namespace, self.name)
-        else:
-            args = ()
-        return getattr(uuid, 'uuid%s' % self.version)(*args)
 
     def db_type(self, connection):
         if connection.vendor == 'postgresql':
@@ -72,7 +57,7 @@ class UUIDField(Field):
         value = super(UUIDField, self).pre_save(model_instance, add)
         if self.auto and add and not value:
             # Assign a new value for this attribute if required.
-            value = self._create_uuid()
+            value = self.auto(model_instance)
             setattr(model_instance, self.attname, value)
         return value
 
