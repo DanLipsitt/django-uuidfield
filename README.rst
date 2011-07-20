@@ -21,7 +21,7 @@ Simply add the UUIDField to your model. For example::
         uuid = UUIDField(auto=True)
 
 
-.. class: uuidfeild.UUIDField
+.. class:: uuidfeild.UUIDField
 
     This field allows you to store and reference UUID objects in your model.
 
@@ -31,7 +31,7 @@ Simply add the UUIDField to your model. For example::
 
     This field is compatible with South.
 
-	.. method: __init__(auto=False, **standard_field_kwargs)
+	.. method:: __init__(auto=False, **standard_field_kwargs)
 
         :param auto:
             Used to generate a UUID for models on save when the field attribute
