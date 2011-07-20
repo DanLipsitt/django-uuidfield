@@ -45,3 +45,5 @@ class UUIDFieldTestCase(TestCase):
         obj = models.Auto.objects.create()
         self.assertEqual(models.Auto.objects.get(uuid=obj.uuid), obj)
         self.assertEqual(models.Auto.objects.get(uuid=obj.uuid.hex), obj)
+        self.assertEqual(models.Auto.objects.get(uuid=unicode(obj.uuid.hex)),
+            obj)
