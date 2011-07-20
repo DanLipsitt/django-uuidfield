@@ -9,7 +9,7 @@ except ImportError:
     from setuptools import setup, find_packages
     from setuptools.command.test import test
 
-class mytest(test):
+class PackageTest(test):
     def run(self, *args, **kwargs):
         from runtests import runtests
         runtests()
@@ -23,13 +23,12 @@ setup(
     url='https://github.com/dcramer/django-uuidfield',
     zip_safe=False,
     install_requires=[
-        'uuid',
-        'django',
+        'django>=1.3',
     ],
     packages=find_packages(),
-    test_suite = 'uuidfield.tests',
+    test_suite = 'uuidfield.uuidfield_tests',
     include_package_data=True,
-    cmdclass={"test": mytest},
+    cmdclass={"test": PackageTest},
     classifiers=[
         "Framework :: Django",
         "Intended Audience :: Developers",
