@@ -62,10 +62,11 @@ class UUIDField(Field):
         return value
 
     def get_db_prep_value(self, value, connection, prepared=False):
-        if connection.vendor == 'postgresql':
-            return self.to_python(value)
-        if isinstance(value, uuid.UUID):
-            return value.hex
+        value = self.to_python(value)
+        if connection.vendor != 'postgresql':
+            if isinstance(value, uuid.UUID):
+                value = value.hex
+        return value
 
     def south_field_triple(self):
         "Returns a suitable description of this field for South."
