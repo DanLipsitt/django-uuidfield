@@ -40,3 +40,8 @@ class UUIDFieldTestCase(TestCase):
         test_uuid = uuid.UUID('12345678123456781234567812345678')
         obj = models.Nullable.objects.create(uuid=test_uuid)
         self.assertEqual(obj.uuid, test_uuid)
+
+    def test_lookup(self):
+        obj = models.Auto.objects.create()
+        self.assertEqual(models.Auto.objects.get(uuid=obj.uuid), obj)
+        self.assertEqual(models.Auto.objects.get(uuid=obj.uuid.hex), obj)

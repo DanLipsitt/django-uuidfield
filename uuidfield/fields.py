@@ -5,7 +5,7 @@ from django.utils.encoding import smart_unicode
 
 try:
     # psycopg2 needs us to register the uuid type
-    import psycopg2
+    import psycopg2.extras
     psycopg2.extras.register_uuid()
 except (ImportError, AttributeError):
     pass
@@ -61,7 +61,9 @@ class UUIDField(Field):
             setattr(model_instance, self.attname, value)
         return value
 
-    def get_prep_value(self, value):
+    def get_db_prep_value(self, value, connection, prepared=False):
+        if connection.vendor == 'postgresql':
+            return self.to_python(value)
         if isinstance(value, uuid.UUID):
             return value.hex
 

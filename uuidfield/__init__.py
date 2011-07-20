@@ -4,4 +4,4 @@ try:
 except Exception, e:
     VERSION = 'unknown'
     
-from fields import UUIDField
+from uuidfield.fields import UUIDField
