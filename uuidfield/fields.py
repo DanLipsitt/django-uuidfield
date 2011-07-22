@@ -1,6 +1,6 @@
 import uuid
 
-from django.db.models import Field
+from django.db import models
 from django.utils.encoding import smart_unicode
 
 try:
@@ -11,7 +11,7 @@ except (ImportError, AttributeError):
     pass
 
 
-class UUIDField(Field):
+class UUIDField(models.Field):
     """
     A field which stores a UUID value in hex format. This may also have
     the Boolean attribute 'auto' which will set the value on initial save to a
@@ -19,7 +19,7 @@ class UUIDField(Field):
     UUIDs are expected to be unique we enforce this with a DB constraint.
     """
     # TODO: support binary storage types
-    # __metaclass__ = models.SubfieldBase
+    __metaclass__ = models.SubfieldBase
 
     def __init__(self, auto=None, *args, **kwargs):
         self.auto = auto

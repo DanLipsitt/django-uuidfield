@@ -54,6 +54,13 @@ class UUIDFieldTestCase(TestCase):
         self.assertEqual(get(uuid=obj.uuid.hex), obj)
         self.assertEqual(get(uuid=unicode(obj.uuid.hex)), obj)
 
+    def test_is_uuid(self):
+        models.Auto.objects.using(self.database).create()
+        # Retrieve the data from the database to ensure the field gets coerced
+        # back to UUID.
+        obj = models.Auto.objects.using(self.database).get()
+        self.assertTrue(isinstance(obj.uuid, uuid.UUID))
+
 
 class FallbackUUIDFieldTestCase(UUIDFieldTestCase):
     database = 'sqlite'
