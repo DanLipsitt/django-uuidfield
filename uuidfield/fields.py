@@ -3,6 +3,8 @@ import uuid
 from django.db import models
 from django.utils.encoding import smart_unicode
 
+from uuidfield import utils
+
 try:
     # psycopg2 needs us to register the uuid type
     import psycopg2.extras
@@ -62,6 +64,7 @@ class UUIDField(models.Field):
         return value
 
     def get_db_prep_value(self, value, connection, prepared=False):
+        value = utils.from_short_string(value, ignore_errors=True) or value
         value = self.to_python(value)
         if connection.vendor != 'postgresql':
             if isinstance(value, uuid.UUID):

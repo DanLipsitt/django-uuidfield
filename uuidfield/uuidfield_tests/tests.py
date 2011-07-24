@@ -3,6 +3,7 @@ import uuid
 from django.test import TestCase
 
 from uuidfield.uuidfield_tests import models
+from uuidfield import utils
 
 
 class UUIDFieldTestCase(TestCase):
@@ -61,7 +62,48 @@ class UUIDFieldTestCase(TestCase):
         obj = models.Auto.objects.using(self.database).get()
         self.assertTrue(isinstance(obj.uuid, uuid.UUID))
 
+    def test_shortstring_filter(self):
+        models.Nullable.objects.using(self.database).create(
+            uuid=uuid.UUID('54755d26-a264-479d-bc23-3292a4e8edac')
+        )
+        obj = models.Nullable.objects.using(self.database).get(
+            uuid='VHVdJqJkR528IzKSpOjtrA'
+        )
+        self.assertEqual(
+            obj.uuid,
+            uuid.UUID('54755d26-a264-479d-bc23-3292a4e8edac')
+        )
+
 
 class FallbackUUIDFieldTestCase(UUIDFieldTestCase):
     database = 'sqlite'
     multi_db = True
+
+
+class UtilsTest(TestCase):
+    example_uuid = uuid.UUID('54755d26-a264-479d-bc23-3292a4e8edac')
+    example_uuid_string = 'VHVdJqJkR528IzKSpOjtrA'
+
+    def test_to_string(self):
+        self.assertEqual(
+            utils.to_short_string(self.example_uuid),
+            self.example_uuid_string
+        )
+
+    def test_from_string(self):
+        self.assertEqual(
+            utils.from_short_string(self.example_uuid_string),
+            self.example_uuid
+        )
+
+    def test_from_bad_string(self):
+        self.assertRaises(TypeError, utils.from_short_string, 'a')
+        self.assertRaises(ValueError, utils.from_short_string, 'aaaaAA==')
+        self.assertEqual(
+            utils.from_short_string('a', ignore_errors=True),
+            None
+        )
+        self.assertEqual(
+            utils.from_short_string('aaaaAA==', ignore_errors=True),
+            None
+        )
