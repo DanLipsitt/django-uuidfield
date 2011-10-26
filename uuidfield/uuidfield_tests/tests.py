@@ -74,6 +74,10 @@ class UUIDFieldTestCase(TestCase):
             uuid.UUID('54755d26-a264-479d-bc23-3292a4e8edac')
         )
 
+    def test_primary_key(self):
+        obj = models.PrimaryKey.objects.using(self.database).create()
+        self.assertTrue(isinstance(obj.pk, uuid.UUID))
+
 
 class FallbackUUIDFieldTestCase(UUIDFieldTestCase):
     database = 'sqlite'

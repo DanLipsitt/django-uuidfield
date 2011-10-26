@@ -21,3 +21,7 @@ class CustomAuto(models.Model):
 
 class Nullable(models.Model):
     uuid = UUIDField(null=True)
+
+
+class PrimaryKey(models.Model):
+    id = UUIDField(primary_key=True, auto=True)
