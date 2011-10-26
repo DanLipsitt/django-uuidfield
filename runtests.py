@@ -17,18 +17,23 @@ if not settings.configured:
             }
         },
         INSTALLED_APPS=[
+            'django_nose',
             'django.contrib.contenttypes',
             'uuidfield.uuidfield_tests',
         ],
         ROOT_URLCONF='',
         DEBUG=False,
+        TEST_RUNNER = 'django_nose.NoseTestSuiteRunner',
     )
 
-from django.test.simple import DjangoTestSuiteRunner
+try:
+    from django_nose import NoseTestSuiteRunner as DjangoTestSuiteRunner
+except ImportError:
+    from django.test.simple import DjangoTestSuiteRunner
 
 def runtests(*test_args):
     if not test_args:
-        test_args = ['uuidfield_tests']
+        test_args = ['uuidfield.uuidfield_tests']
     parent = dirname(abspath(__file__))
     sys.path.insert(0, parent)
     failures = DjangoTestSuiteRunner(verbosity=1, interactive='--no-input' not in sys.argv).run_tests(test_args)
